@@ -1,10 +1,11 @@
 import datetime
 import numpy as np
 import pandas as pd
-import Queue
+# import Queue
 
 from abc import ABCMeta, abstractmethod
 from math import floor
+from queue import Queue
 
 from event import FillEvent, OrderEvent
 from performance import create_sharpe_ratio, create_drawdowns
@@ -68,7 +69,8 @@ class NaivePortfolio(Portfolio):
         self.all_positions.append(dp)
 
         dh = dict( (k, v) for k, v in [(s, 0) for s in self.symbol_list] )
-        dp['datetime'] = bars[self.symbol_list[0][0][1]]
+        # dp['datetime'] = bars[self.symbol_list[0][0][1]]
+        dp['datetime'] = bars[self.symbol_list[0]][0][1]
         dh['cash'] = self.current_holdings['cash']
         dh['commission'] = self.current_holdings['commission']
         dh['total'] = self.current_holdings['cash']
@@ -112,9 +114,10 @@ class NaivePortfolio(Portfolio):
 
         symbol = signal.symbol
         direction = signal.signal_type
-        strength = signal.strength
+        # strength = signal.strength
 
-        mkt_quantity = floor(100 * strength)
+        # mkt_quantity = floor(100 * strength)
+        mkt_quantity = 100
         cur_quantity = self.current_positions[symbol]
         order_type = 'MKT'
 

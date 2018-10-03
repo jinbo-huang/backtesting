@@ -32,7 +32,11 @@ class FillEvent(Event):
         self.exchange = exchange
         self.quantity = quantity
         self.direction = direction
-        self.fill_cost = fill_cost
+
+        if fill_cost is None:
+            self.fill_cost = 0.01
+        else:
+            self.fill_cost = fill_cost
 
         if commission is None:
             self.commission = self.calculate_ib_commission()

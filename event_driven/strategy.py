@@ -1,8 +1,8 @@
 import datetime
 import numpy as np
 import pandas as pd
-import Queue
 
+from queue import Queue
 from abc import ABCMeta, abstractmethod
 
 from event import SignalEvent
