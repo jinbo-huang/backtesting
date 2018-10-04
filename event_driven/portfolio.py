@@ -61,7 +61,9 @@ class NaivePortfolio(Portfolio):
             bars[sym] = self.bars.get_latest_bars(sym, N=1)
 
         dp = dict( (k,v) for k, v in [(s, 0) for s in self.symbol_list] )
-        dp['datetime'] = bars[self.symbol_list[0]][0][1]
+        # print (bars[self.symbol_list[0]])
+        # input()
+        dp['datetime'] = bars[self.symbol_list[0]]['datetime']
 
         for s in self.symbol_list:
             dp[s] = self.current_positions[s]
@@ -70,17 +72,19 @@ class NaivePortfolio(Portfolio):
 
         dh = dict( (k, v) for k, v in [(s, 0) for s in self.symbol_list] )
         # dp['datetime'] = bars[self.symbol_list[0][0][1]]
-        dp['datetime'] = bars[self.symbol_list[0]][0][1]
+        dh['datetime'] = bars[self.symbol_list[0]].iloc[0]['datetime']
         dh['cash'] = self.current_holdings['cash']
         dh['commission'] = self.current_holdings['commission']
         dh['total'] = self.current_holdings['cash']
 
         for s in self.symbol_list:
-            market_value = self.current_positions[s] * bars[s][0][5]    # bars[s][0][5] -> closing price
+            market_value = self.current_positions[s] * bars[s].iloc[0]['close']    # bars[s][0][5] -> closing price
             dh[s] = market_value
             dh['total'] += market_value
 
         self.all_holdings.append(dh)
+        # print (self.all_holdings)
+        # input()
 
     def update_positions_from_fill(self, fill):
         fill_dir = 0
@@ -89,6 +93,7 @@ class NaivePortfolio(Portfolio):
         elif fill.direction == 'SELL':
             fill_dir = -1
         self.current_positions[fill.symbol] += fill_dir * fill.quantity
+        # print ("Current positions: {}".format(self.current_positions[fill.symbol]))
 
     def update_holdings_from_fill(self, fill):
         fill_dir = 0
@@ -97,12 +102,13 @@ class NaivePortfolio(Portfolio):
         elif fill.direction == 'SELL':
             fill_dir = -1
 
-        fill_cost = self.bars.get_latest_bars(fill.symbol)[0][5]
+        fill_cost = self.bars.get_latest_bars(fill.symbol, N=1).iloc[0]['close']
         cost = fill_dir * fill_cost * fill.quantity
         self.current_holdings[fill.symbol] += cost
         self.current_holdings['commission'] += fill.commission
         self.current_holdings['cash'] -= (cost + fill.commission)
         self.current_holdings['total'] -= (cost + fill.commission)
+        print ("Current holdings: {:.3f}, cash: {:.3f}, total:{:.3f}".format(self.current_holdings[fill.symbol], self.current_holdings['cash'], self.current_holdings['total']))
 
     def update_fill(self, event):
         if event.type == 'FILL':
@@ -121,10 +127,15 @@ class NaivePortfolio(Portfolio):
         cur_quantity = self.current_positions[symbol]
         order_type = 'MKT'
 
-        if direction == 'LONG' and cur_quantity == 0:
+        if direction == 'LONG':
             order = OrderEvent(symbol, order_type, mkt_quantity, 'BUY')
-        if direction == 'SHORT' and cur_quantity == 0:
+        if direction == 'SHORT':
             order = OrderEvent(symbol, order_type, mkt_quantity, 'SELL')
+
+        # if direction == 'LONG' and cur_quantity == 0:
+        #     order = OrderEvent(symbol, order_type, mkt_quantity, 'BUY')
+        # if direction == 'SHORT' and cur_quantity == 0:
+        #    order = OrderEvent(symbol, order_type, mkt_quantity, 'SELL')
 
         if direction == 'EXIT' and cur_quantity > 0:
             order = OrderEvent(symbol, order_type, abs(cur_quantity), 'SELL')
@@ -140,14 +151,21 @@ class NaivePortfolio(Portfolio):
 
     def create_equity_curve_dataframe(self):
         curve = pd.DataFrame(self.all_holdings)
+        # print (curve)
+        # print ("=" * 20)
+        # input()
         curve.set_index('datetime', inplace=True)
         curve['returns'] = curve['total'].pct_change()
         curve['equity_curve'] = (1.0 + curve['returns']).cumprod()
         self.equity_curve = curve
     
     def output_summary_stats(self):
+        self.create_equity_curve_dataframe()
         total_return = self.equity_curve['equity_curve'][-1]
         returns = self.equity_curve['returns']
+        # print (returns)
+        # print ('=' * 20)
+        # input()
         pnl = self.equity_curve['equity_curve']
 
         sharpe_ratio = create_sharpe_ratio(returns)
