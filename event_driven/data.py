@@ -93,21 +93,15 @@ class HistoricPDDataHandler(DataHandler):
             )
             '''
             self.symbol_data[s] = pd.read_pickle(os.path.join(self.csv_dir, "{}.pkl".format(s))).iloc[0:50]
-            # print (self.symbol_data[s].columns)
-            # print (self.symbol_data[s].index)
-            # print ('=' * 60) 
+            # print (self.symbol_data[s].iloc[:10])
+            # input()
 
             if comb_index is None:
                 comb_index = self.symbol_data[s].index
             else:
                 comb_index.union(self.symbol_data[s].index)
 
-            # self.latest_symbol_data[s] = pd.DataFrame(columns=self.symbol_data[s].columns).set_index('datetime')
-            # self.latest_symbol_data[s] = pd.DataFrame(data=None, columns=self.symbol_data[s].columns, index=self.symbol_data[s].index)
             self.latest_symbol_data[s] = pd.DataFrame(columns=['datetime', 'open', 'high', 'low', 'close', 'volume'])
-            # print (self.latest_symbol_data[s].columns)
-            # print (self.latest_symbol_data[s].index)
-            # print ('=' * 60)
 
         for s in self.symbol_list:
             self.symbol_data[s] = self.symbol_data[s].reindex(index=comb_index, method='pad').iterrows()

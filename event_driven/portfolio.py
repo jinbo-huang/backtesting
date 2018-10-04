@@ -29,10 +29,12 @@ class NaivePortfolio(Portfolio):
         self.start_date = start_date
         self.initial_capital = initial_capital
 
-        self.all_positions = self.construct_all_positions()
+        # self.all_positions = self.construct_all_positions()
+        self.all_positions = []
         self.current_positions = dict( (k, v) for k, v in [(s, 0) for s in self.symbol_list])
 
-        self.all_holdings = self.construct_all_holdings()
+        # self.all_holdings = self.construct_all_holdings()        
+        self.all_holdings = []
         self.current_holdings = self.construct_current_holdings()
 
     def construct_all_positions(self):
@@ -61,8 +63,6 @@ class NaivePortfolio(Portfolio):
             bars[sym] = self.bars.get_latest_bars(sym, N=1)
 
         dp = dict( (k,v) for k, v in [(s, 0) for s in self.symbol_list] )
-        # print (bars[self.symbol_list[0]])
-        # input()
         dp['datetime'] = bars[self.symbol_list[0]]['datetime']
 
         for s in self.symbol_list:
@@ -151,9 +151,6 @@ class NaivePortfolio(Portfolio):
 
     def create_equity_curve_dataframe(self):
         curve = pd.DataFrame(self.all_holdings)
-        # print (curve)
-        # print ("=" * 20)
-        # input()
         curve.set_index('datetime', inplace=True)
         curve['returns'] = curve['total'].pct_change()
         curve['equity_curve'] = (1.0 + curve['returns']).cumprod()
@@ -163,9 +160,6 @@ class NaivePortfolio(Portfolio):
         self.create_equity_curve_dataframe()
         total_return = self.equity_curve['equity_curve'][-1]
         returns = self.equity_curve['returns']
-        # print (returns)
-        # print ('=' * 20)
-        # input()
         pnl = self.equity_curve['equity_curve']
 
         sharpe_ratio = create_sharpe_ratio(returns)
