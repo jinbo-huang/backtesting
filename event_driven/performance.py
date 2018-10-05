@@ -1,9 +1,11 @@
 import numpy as np
 import pandas as pd
 
+
 def create_sharpe_ratio(returns, periods=252):
     # periods - Daily (252), Hourly (252*6.5), Minutely(252*6.5*60) etc.
     return np.sqrt(periods) * np.mean(returns) / np.std(returns)
+
 
 def create_drawdowns(equity_curve):
     hwm = [0]

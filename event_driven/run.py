@@ -18,8 +18,8 @@ strategy = MeanReversionStrategy(bars, events, short_window=5)
 port = NaivePortfolio(bars, events, "2018-10-3", 100000)
 broker = SimulatedExecutionHandler(events)
 
-print ("Days: 50, Strategy: Mean-Reversion, Stock: FB")
-print ("Press Enter to Start...")
+print("Days: 50, Strategy: Mean-Reversion, Stock: FB")
+print("Press Enter to Start...")
 input()
 
 while bars.continue_backtest == True:
@@ -49,5 +49,5 @@ while bars.continue_backtest == True:
     time.sleep(0.1)
 
 result_stats = port.output_summary_stats()
-print ('==========================================')
-print (result_stats)
+print('==========================================')
+print(result_stats)
