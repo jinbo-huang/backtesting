@@ -1,7 +1,6 @@
 import datetime
 import time
 # import ibapi
-
 from ib.ext.Contract import Contract
 from ib.ext.Order import Order
 from ib.opt import ibConnection, message
@@ -10,6 +9,7 @@ from ib.opt import ibConnection, message
 
 from event import FillEvent, OrderEvent
 from execution import ExecutionHandler
+
 
 class IBExecutionHandler(ExecutionHandler):
     def __init__(self, events, order_routing="SMART", currency="USD"):
@@ -23,14 +23,14 @@ class IBExecutionHandler(ExecutionHandler):
         self.register_handlers()
 
     def _error_handler(self, msg):
-        print ("Server Error: {}".format(msg))
-    
+        print("Server Error: {}".format(msg))
+
     def _reply_handler(self, msg):
         if msg.typeName == "openOrder" and msg.orderId == self.order_id and not msg.orderId in self.fill_dict:
             self.create_fill_dict_entry(msg)
         if msg.typeName == "orderStatus" and msg.status == "Filled" and self.fill_dict[msg.orderId]["filled"] == False:
             self.create_fill(msg)
-        print ("Server Response: {}, {}".format(msg.typeName, msg))
+        print("Server Response: {}, {}".format(msg.typeName, msg))
 
     def create_tws_connection(self):
         tws_conn = ibConnection()
@@ -80,7 +80,7 @@ class IBExecutionHandler(ExecutionHandler):
 
         # Create a fill event object
         fill_event = FillEvent(
-            datetime.datetime.utcnow(), symbol, 
+            datetime.datetime.utcnow(), symbol,
             exchange, filled, direction, fill_cost
         )
 
@@ -100,14 +100,14 @@ class IBExecutionHandler(ExecutionHandler):
             quantity = event.quantity
             direction = event.direction
 
-            # Create the Interactive Brokers contract via the 
+            # Create the Interactive Brokers contract via the
             # passed Order event
             ib_contract = self.create_contract(
                 asset, asset_type, self.order_routing,
                 self.order_routing, self.currency
             )
 
-            # Create the Interactive Brokers order via the 
+            # Create the Interactive Brokers order via the
             # passed Order event
             ib_order = self.create_order(
                 order_type, quantity, direction

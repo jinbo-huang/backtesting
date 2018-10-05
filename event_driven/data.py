@@ -1,5 +1,6 @@
 import datetime
-import os, os.path
+import os
+import os.path
 import pandas as pd
 
 from abc import ABCMeta, abstractmethod
@@ -13,6 +14,7 @@ class DataHandler(object):
 
     def update_bars(self):
         raise NotImplementedError("Should implement update_bars()")
+
 
 class HistoricCSVDataHandler(DataHandler):
     def __init__(self, events, csv_dir, symbol_list):
@@ -32,7 +34,8 @@ class HistoricCSVDataHandler(DataHandler):
             self.symbol_data[s] = pd.io.parsers.read_csv(
                 os.path.join(self.csv_dir, "{}.csv".format(s)),
                 header=0, index_col=0,
-                names=['datetime', 'open', 'low', 'high', 'close', 'volume', 'close']
+                names=['datetime', 'open', 'low',
+                       'high', 'close', 'volume', 'close']
             )
 
             if comb_index is None:
@@ -43,7 +46,8 @@ class HistoricCSVDataHandler(DataHandler):
             self.latest_symbol_data[s] = []
 
         for s in self.symbol_list:
-            self.symbol_data[s] = self.symbol_data[s].reindex(index=comb_index, method='pad').iterrows()
+            self.symbol_data[s] = self.symbol_data[s].reindex(
+                index=comb_index, method='pad').iterrows()
 
     def _get_new_bar(self, symbol):
         for b in self.symbol_data[symbol]:
@@ -53,7 +57,7 @@ class HistoricCSVDataHandler(DataHandler):
         try:
             bars_list = self.latest_symbol_data[symbol]
         except:
-            print ("That symbol is not available in the historical data set.")
+            print("That symbol is not available in the historical data set.")
         else:
             return bars_list[-N:]
 
@@ -69,6 +73,7 @@ class HistoricCSVDataHandler(DataHandler):
                     self.latest_symbol_data[s].append(bar)
 
         self.events.put(MarketEvent())
+
 
 class HistoricPDDataHandler(DataHandler):
     def __init__(self, events, csv_dir, symbol_list):
@@ -92,7 +97,8 @@ class HistoricPDDataHandler(DataHandler):
                 names=['datetime', 'Open', 'High', 'Low', 'Close', 'Volume', 'close']
             )
             '''
-            self.symbol_data[s] = pd.read_pickle(os.path.join(self.csv_dir, "{}.pkl".format(s))).iloc[0:50]
+            self.symbol_data[s] = pd.read_pickle(os.path.join(
+                self.csv_dir, "{}.pkl".format(s))).iloc[0:50]
             # print (self.symbol_data[s].iloc[:10])
             # input()
 
@@ -101,11 +107,12 @@ class HistoricPDDataHandler(DataHandler):
             else:
                 comb_index.union(self.symbol_data[s].index)
 
-            self.latest_symbol_data[s] = pd.DataFrame(columns=['datetime', 'open', 'high', 'low', 'close', 'volume'])
+            self.latest_symbol_data[s] = pd.DataFrame(
+                columns=['datetime', 'open', 'high', 'low', 'close', 'volume'])
 
         for s in self.symbol_list:
-            self.symbol_data[s] = self.symbol_data[s].reindex(index=comb_index, method='pad').iterrows()
-
+            self.symbol_data[s] = self.symbol_data[s].reindex(
+                index=comb_index, method='pad').iterrows()
 
     def _get_new_bar(self, symbol):
         for b in self.symbol_data[symbol]:
@@ -115,7 +122,7 @@ class HistoricPDDataHandler(DataHandler):
             # print (b[0])
             # print (b[1])
             # input()
-            
+
             row_dict = {}
             row_dict['datetime'] = b[0]
             row_dict['open'] = b[1]['Open']
@@ -124,7 +131,7 @@ class HistoricPDDataHandler(DataHandler):
             row_dict['close'] = b[1]['Close']
             row_dict['volume'] = b[1]['Volume']
             yield row_dict
-            
+
             # yield [b[0], b[1]['Open'], b[1]['High'], b[1]['Low'], b[1]['Close'], b[1]['Volume']]
 
     def get_latest_bars(self, symbol, N=1):
@@ -142,7 +149,8 @@ class HistoricPDDataHandler(DataHandler):
                 if bar is not None:
                     # print (bar)
                     # input()
-                    self.latest_symbol_data[s] = self.latest_symbol_data[s].append(bar, ignore_index=True)
+                    self.latest_symbol_data[s] = self.latest_symbol_data[s].append(
+                        bar, ignore_index=True)
                     # print (self.latest_symbol_data[s])
                     # input()
 

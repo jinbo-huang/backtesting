@@ -7,6 +7,7 @@ from abc import ABCMeta, abstractmethod
 
 from event import SignalEvent
 
+
 class Strategy(object):
     __metaclass__ = ABCMeta
 
@@ -37,9 +38,10 @@ class BuyAndHoldStrategy(Strategy):
             if bars is not None and bars != []:
                 if self.bought[s] == False:
                     signal = SignalEvent(bars[0][0], bars[0][1], 'LONG')
-                    print ("Send long signal")
+                    print("Send long signal")
                     self.events.put(signal)
                     self.bought[s] = True
+
 
 class MeanReversionStrategy(Strategy):
     def __init__(self, bars, events, long_window=100, short_window=40):
@@ -58,14 +60,13 @@ class MeanReversionStrategy(Strategy):
 
     def calculate_signals(self, event):
         assert event.type == 'MARKET', "The event type should be MARKET"
-        
+
         '''
         for s in self.symbol_list:
             bars = self.bars.get_latest_bars(s, N=1)
             self.long_mavg[s] = self.long_mavg[s] * self.bars_count + bars[3]
             self.bars_count = self.bars_count + 1
         '''
-
 
         for s in self.symbol_list:
             # if self.bars.bars_length(s) > self.short_window and self.bought[s] == False:
@@ -80,11 +81,13 @@ class MeanReversionStrategy(Strategy):
                 signal = None
                 if short_mavg > long_mavg and self.status is not 1:
                     signal = SignalEvent(s, bars.iloc[-1]['datetime'], 'LONG')
-                    print ("short mavg: {:.3f}, long mavg: {:.3f} ==> Long".format(short_mavg, long_mavg))
+                    print("short mavg: {:.3f}, long mavg: {:.3f} ==> Long".format(
+                        short_mavg, long_mavg))
                     self.status = 1
                 elif short_mavg < long_mavg and self.status is not -1:
                     signal = SignalEvent(s, bars.iloc[-1]['datetime'], 'SHORT')
-                    print ("short mavg: {:.3f}, long mavg: {:.3f} ==> Short".format(short_mavg, long_mavg))
+                    print("short mavg: {:.3f}, long mavg: {:.3f} ==> Short".format(
+                        short_mavg, long_mavg))
                     self.status = -1
                 # print ("{} bars length: {}. Testing~~~".format(s, self.bars.bars_length(s)))
                 # signal = SignalEvent(bars[0][0], bars[0][1], 'LONG')

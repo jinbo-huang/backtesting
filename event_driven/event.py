@@ -1,9 +1,11 @@
 class Event(object):
     pass
 
+
 class MarketEvent(Event):
     def __init__(self):
         self.type = 'MARKET'
+
 
 class SignalEvent(Event):
     def __init__(self, symbol, datetime, signal_type):
@@ -11,6 +13,7 @@ class SignalEvent(Event):
         self.symbol = symbol
         self.datetime = datetime
         self.signal_type = signal_type
+
 
 class OrderEvent(Event):
     def __init__(self, symbol, order_type, quantity, direction):
@@ -21,8 +24,9 @@ class OrderEvent(Event):
         self.direction = direction
 
     def print_order(self):
-        print ("Order: Symbol={}, Type={}, Quantity={}, Direction={}".format(
+        print("Order: Symbol={}, Type={}, Quantity={}, Direction={}".format(
             self.symbol, self.order_type, self.quantity, self.direction))
+
 
 class FillEvent(Event):
     def __init__(self, timeindex, symbol, exchange, quantity, direction, fill_cost, commission=None):
@@ -55,6 +59,7 @@ class FillEvent(Event):
         else:
             full_cost = max(1.3, 0.008 * self.quantity)
 
-        full_cost = min(full_cost, 0.5 / 100.0 * self.quantity * self.fill_cost)
+        full_cost = min(full_cost, 0.5 / 100.0 *
+                        self.quantity * self.fill_cost)
 
         return full_cost
