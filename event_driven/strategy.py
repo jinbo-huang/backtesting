@@ -72,10 +72,6 @@ class MeanReversionStrategy(Strategy):
             # if self.bars.bars_length(s) > self.short_window and self.bought[s] == False:
             if self.bars.bars_length(s) > self.short_window:
                 bars = self.bars.get_latest_bars(s, N=self.long_window)
-                # print (bars.tail(10))
-                # print (bars)
-                # input()
-                # print (bars[0])
                 short_mavg = bars.iloc[-self.short_window:]['close'].mean()
                 long_mavg = bars['close'].mean()
                 signal = None

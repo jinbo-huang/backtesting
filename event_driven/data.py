@@ -99,8 +99,6 @@ class HistoricPDDataHandler(DataHandler):
             '''
             self.symbol_data[s] = pd.read_pickle(os.path.join(
                 self.csv_dir, "{}.pkl".format(s))).iloc[0:50]
-            # print (self.symbol_data[s].iloc[:10])
-            # input()
 
             if comb_index is None:
                 comb_index = self.symbol_data[s].index
@@ -116,13 +114,6 @@ class HistoricPDDataHandler(DataHandler):
 
     def _get_new_bar(self, symbol):
         for b in self.symbol_data[symbol]:
-            #   print (b[0])
-            # yield tuple([symbol, datetime.datetime.strptime(b[0], '%Y-%m-%d %H:%M:%S'), b[1][0], b[1][1], b[1][2], b[1][3], b[1][4]])
-            # yield tuple([symbol, b[0], b[1][0], b[1][1], b[1][2], b[1][3], b[1][4]])
-            # print (b[0])
-            # print (b[1])
-            # input()
-
             row_dict = {}
             row_dict['datetime'] = b[0]
             row_dict['open'] = b[1]['Open']
@@ -147,12 +138,8 @@ class HistoricPDDataHandler(DataHandler):
                 self.continue_backtest = False
             else:
                 if bar is not None:
-                    # print (bar)
-                    # input()
                     self.latest_symbol_data[s] = self.latest_symbol_data[s].append(
                         bar, ignore_index=True)
-                    # print (self.latest_symbol_data[s])
-                    # input()
 
         self.events.put(MarketEvent())
 
